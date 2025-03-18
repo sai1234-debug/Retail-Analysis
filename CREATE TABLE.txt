@@ -1,0 +1,64 @@
+CREATE TABLE Dim_Category (
+    Category_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Category_Name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE Dim_Buyer (
+    Buyer_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Buyer_Name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE Dim_Location (
+    Location_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Suburb VARCHAR(100),
+    Postcode INT,
+    State VARCHAR(50)
+);
+
+CREATE TABLE Dim_Manager (
+    Manager_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Manager_Name VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE Dim_Date (
+    Date_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Date DATE UNIQUE NOT NULL,
+    Financial_Year VARCHAR(10),
+    Financial_Quarter VARCHAR(10),
+    Financial_Month INT
+);
+
+CREATE TABLE Fact_Sales (
+    Sale_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Date_ID INT,
+    Chain VARCHAR(50),
+    Location_ID INT,
+    Category_ID INT,
+    Buyer_ID INT,
+    Manager_ID INT,
+    Total_Units INT,
+    Sale_Price DECIMAL(10,2),
+    Cost_Price DECIMAL(10,2),
+    FOREIGN KEY (Date_ID) REFERENCES Dim_Date(Date_ID),
+    FOREIGN KEY (Location_ID) REFERENCES Dim_Location(Location_ID),
+    FOREIGN KEY (Category_ID) REFERENCES Dim_Category(Category_ID),
+    FOREIGN KEY (Buyer_ID) REFERENCES Dim_Buyer(Buyer_ID),
+    FOREIGN KEY (Manager_ID) REFERENCES Dim_Manager(Manager_ID)
+);
+# Generate INSERT statements for Dim_Category
+insert_category = "\n".join([f"INSERT INTO Dim_Category (Category_Name) VALUES ('{cat}');" for cat in categories])
+
+# Generate INSERT statements for Dim_Buyer
+insert_buyer = "\n".join([f"INSERT INTO Dim_Buyer (Buyer_Name) VALUES ('{buyer}');" for buyer in buyers])
+
+# Generate INSERT statements for Dim_Manager
+insert_manager = "\n".join([f"INSERT INTO Dim_Manager (Manager_Name) VALUES ('{mgr}');" for mgr in managers])
+
+# Generate INSERT statements for Dim_Location
+insert_location = "\n".join([
+    f"INSERT INTO Dim_Location (Suburb, Postcode, State) VALUES ('{row.Suburb}', {row.Postcode}, '{row.State}');"
+    for _, row in locations.iterrows()
+])
+
+# Display previews of the INSERT statements
+insert_category[:500], insert_buyer[:500], insert_manager[:500], insert_location[:500]
